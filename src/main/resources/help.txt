@@ -1,0 +1,143 @@
+allure serve C:\Users\Maryna\IdeaProjects\REST-test-framework-templateNew2\target\allure-results
+
+
+https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.14.0/
+
+@Test
+    public void deleteRequest() {
+        RestAssured.baseURI = "http://localhost:8080/api/library/genre";
+        //String postEndpoint = "http://localhost:8080/api/library/genre";
+        Response response = given()
+                .header("Content-type", "application/json")
+                .when()
+                .delete("/10474")
+                .then()
+                .log()
+                .all()
+                .extract().response();
+
+        // Assert.assertTrue(200, String.valueOf(response.statusCode()));;
+        Assert.assertEquals(204, response.statusCode());
+    }
+
+
+
+ public void testGetAllGenres() {
+        RestAssured.baseURI = EndPoints.GETALLGENRESURL.getValue();
+        //  int x = 1;
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .when()
+                //     .get("/genres?page=" + x)
+                .get("/genres")
+                .then()
+                .log()
+                .all()
+                .extract().response();
+
+        Assert.assertEquals(200, response.statusCode());
+        // Assertions.assertEquals("Meghan_Littel@rene.us", response.jsonPath().getString("email[3]"));
+
+
+        List<Integer> m1 = response.jsonPath().get("genreId");
+        if (m1.size() > 0) {
+            System.out.println(m1.get(0));
+        }
+
+
+             /*
+        public Card getCard(String productName, String tariffPlanName) {
+    List<Card> cardList = given()
+        .when().get("/").then()
+        .extract().jsonPath().getList("", Card.class);
+
+    return cardList.stream()
+        .filter(card -> card.product.name.equals(productName))
+        .filter(card -> card.tariffPlan.name.equals(tariffPlanName))
+        .findFirst()
+        .get();
+  }
+         */
+
+        //list2.addAll(list1);
+
+//        Integer max = listOfIntegers
+//                .stream()
+//                .mapToInt(v -> v)
+//                .max().orElseThrow(NoSuchElementException::new);
+
+/*
+@BeforeAll
+    public static void setup() {
+        RestAssured.baseURI = "https://jsonplaceholder.typicode.com";
+    }
+
+    @Test
+    public void deleteRequest() {
+        Response response = given()
+                .header("Content-type", "application/json")
+                .when()
+                .delete("/posts/1")
+                .then()
+                .extract().response();
+
+        Assertions.assertEquals(200, response.statusCode());
+    }
+ */
+
+    @Test
+    public void testDeleteGenre() {
+        //String postEndpoint = "http://localhost:8080/api/library/genre/10460";
+
+
+        // Assert.assertEquals(newGenre, result);
+        //  Assert.assertTrue(newGenre.equals(result), "must true");
+        //assertTrue (str1.equals (str2)) выдает исключение. Первый пример также выведет полезное ...
+        //  Assert.assertEquals(newGenre, result);
+        //assert(newGenre).equals(result); /*?**/
+//
+//
+        //      int statusJson@Test
+        //public void testFooDelete() throws Exception {
+        //    this.mockMvc.perform(MockMvcRequestBuilders
+        //            .delete("/api/foo/11")
+        //            .contentType(MediaType.APPLICATION_JSON))
+        //            .accept(MediaType.APPLICATION_JSON))
+        //            .andExpect(status().isOk());
+        //}NewGenre = with().body(jsonNewGenre).request("POST", postEndpoint).getStatusCode();
+        // Assert.assertEquals(statusJsonNewGenre,201);
+
+        /*
+
+         */
+    }
+
+     @Test(description = "get all genres")
+        public void testGetAllGenres() {
+            RestAssured.baseURI = EndPoints.GETALLGENRESURL.getValue();
+            //  int x = 1;
+            Response response = given()
+                    .contentType(ContentType.JSON)
+                    .when()
+                    //     .get("/genres?page=" + x)
+                    .get("/genres")
+                    .then()
+                    .log()
+                    .all()
+                    .extract().response();
+
+            Assert.assertEquals(200, response.statusCode());
+            // Assertions.assertEquals("Meghan_Littel@rene.us", response.jsonPath().getString("email[3]"));
+
+
+            List<Integer> m1 = response.jsonPath().get("genreId");
+            if (m1.size() > 0) {
+                System.out.println(m1.get(0));
+            }
+        }
+
+        //GET http://localhost:8080/api/library/genres/search?query=Test
+
+        allure.results.directory=target/allure-results
+        allure.link.issue.pattern=https://example.org/issue/{}
+        allure.link.tms.pattern=https://example.org/tms/{}
