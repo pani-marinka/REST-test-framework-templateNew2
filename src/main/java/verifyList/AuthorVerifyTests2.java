@@ -23,7 +23,7 @@ public class AuthorVerifyTests2 {
     }
 
     @Step
-    public void verifyCheckIdInBDNotExists(Author author) {
+    public void verifyCheckId(Author author) {
         LOG.info(String.format("Expected not this Id in BD "));
         Assert.assertFalse(authorService.checkAuthorIdBD(author.getAuthorId()), "getIdAuthor from BD is not exists");
     }
@@ -36,7 +36,7 @@ public class AuthorVerifyTests2 {
 
     @Step
     public void verifyAddNewAuthor(Author author, Response response) {
-        Allure.addAttachment("Response AuthorClass",response.body().as(Author.class).toString());
+        Allure.addAttachment("Response AuthorClass", response.body().as(Author.class).toString());
         Author result = response.body().as(Author.class); //response.body().as(this.responseClass);
         Assert.assertEquals(author, result);
     }
@@ -51,8 +51,6 @@ public class AuthorVerifyTests2 {
     @Step
     public void verifyUpdateAuthor(Author author, Response response) {
         Author responseAuthor = response.body().as(Author.class);
-        LOG.info(String.format("Expected 200, our Status code %s ", response.getStatusCode()));
-        Assert.assertEquals(200, response.getStatusCode()); //200 OK update
         LOG.info(String.format("Expected equal authorId"));
         Assert.assertEquals(author.getAuthorId(), responseAuthor.getAuthorId());
         LOG.info(String.format("Expected equal authorNationality"));
@@ -74,18 +72,17 @@ public class AuthorVerifyTests2 {
     }
 
 
-
     @Step
     public void verifyAuthorByFind(Author author, Response response) { //find by authorId
-        Allure.addAttachment("Response AuthorClass",response.body().as(Author.class).toString());
+        Allure.addAttachment("Response AuthorClass", response.body().as(Author.class).toString());
         LOG.info(String.format("Expected equal objects"));
         Assert.assertEquals(author, response.body().as(Author.class));
-      }
+    }
 
     @Step
-    public void verifyAuthorBySearch(Author author,Response response) {  //search by authorName
+    public void verifyAuthorBySearch(Author author, Response response) {  //search by authorName
         LOG.info(String.format("Expected find equal objects"));
-        Assert.assertTrue(authorService.getAuthorSearch2(author,response), "");
+        Assert.assertTrue(authorService.getAuthorSearch2(author, response), "");
     }
 
     @Step

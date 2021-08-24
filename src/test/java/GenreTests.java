@@ -3,13 +3,15 @@ import bussinesObject.Book;
 import bussinesObject.Genre;
 import io.qameta.allure.Allure;
 import io.restassured.response.Response;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import response.BaseResponse;
 import service.AuthorService;
 import service.BookService;
 import service.GenreService2;
 import verifyList.GenreVerifyTests;
+
+import java.util.*;
 
 
 public class GenreTests {
@@ -19,6 +21,64 @@ public class GenreTests {
     GenreVerifyTests testGenreVerify = new GenreVerifyTests();
     AuthorService authorService = new AuthorService();
     BookService bookService = new BookService();
+    private static final int invalidId = -1;
+
+    /*for test Data*/
+    List<Genre> genreList = new ArrayList<>();
+    List<Author> authorList = new ArrayList<>();
+    List<Book> bookList = new ArrayList<>();
+
+    @AfterClass(description = "clear test data")
+    public void finishTest() {
+        System.out.println("*************Begin clear after test**********");
+        Book newBook; // = new Book();
+        System.out.println("Size listBook: " + bookList.size());
+        Iterator<Book> iterBook = bookList.iterator();
+        while (iterBook.hasNext()) {
+            newBook = iterBook.next();
+            Response response = bookService.getBookId(newBook); //check existing
+            if (response.getStatusCode() == 200) {
+                System.out.println("Book Finish Clear" + newBook.toString());
+
+                response = bookService.deleteBook(newBook); // clear test data
+                testGenreVerify.verifyStatusKodResponse(204, response); //  check deleting
+            }
+            iterBook.remove();
+        }
+        System.out.println("Size listBook after clear: " + bookList.size());
+
+        Genre newGenre;
+        System.out.println("Size listGenre: " + genreList.size());
+        Iterator<Genre> iterGenre = genreList.iterator();
+        while (iterGenre.hasNext()) {
+            newGenre = iterGenre.next();
+            Response response = genreService.getGenreId(newGenre); //check existing
+            if (response.getStatusCode() == 200) {
+                System.out.println("Genre Finish Clear" + newGenre.toString());
+                response = genreService.deleteGenre(newGenre); // clear test data
+                testGenreVerify.verifyStatusKodResponse(204, response); //  check deleting
+            }
+            iterGenre.remove();
+        }
+        System.out.println("Size listGenre after clear: " + genreList.size());
+
+
+        Author newAuthor;
+        System.out.println("Size listAuthor: " + authorList.size());
+        Iterator<Author> iterAuthor = authorList.iterator();
+        while (iterAuthor.hasNext()) {
+            newAuthor = iterAuthor.next();
+            Response response = authorService.getAuthorId(newAuthor); //check existing
+            if (response.getStatusCode() == 200) {
+                System.out.println("Author Finish Clear " + newAuthor.toString());
+                response = authorService.deleteAuthor(newAuthor); // clear test data
+                testGenreVerify.verifyStatusKodResponse(204, response); //  check deleting
+            }
+            iterAuthor.remove();
+        }
+        System.out.println("Size listAuthor after clear: " + authorList.size());
+
+    }
 
 
     @Test(description = "get all genres")
@@ -32,13 +92,11 @@ public class GenreTests {
         Genre newGenre = genreService.createObjGenre();
         Response response = genreService.createGenre(newGenre); // prepare testing data
         testGenreVerify.verifyStatusKodResponse(201, response);  // prepare testing data
+        genreList.add(newGenre);
         /*start check*/
         response = genreService.getGenreId(newGenre);
         testGenreVerify.verifyStatusKodResponse(200, response);
         testGenreVerify.verifyGenreByFind(newGenre, response);
-        /*end check*/
-        response = genreService.deleteGenre(newGenre);
-        testGenreVerify.verifyStatusKodResponse(204, response); // clear testing data
     }
 
     @Test(description = "get genres by search Name")
@@ -46,13 +104,11 @@ public class GenreTests {
         Genre newGenre = genreService.createObjGenre();
         Response response = genreService.createGenre(newGenre); // prepare tetsting data
         testGenreVerify.verifyStatusKodResponse(201, response); // prepare tetsting data
+        genreList.add(newGenre);
         /*start check*/
         response = genreService.getGenreSearchList(newGenre);
         testGenreVerify.verifyStatusKodResponse(200, response);
         testGenreVerify.verifyGenreBySearch(newGenre, response);///!;
-        /*end check*/
-        response = genreService.deleteGenre(newGenre);
-        testGenreVerify.verifyStatusKodResponse(204, response); // clear testing data
     }
 
     @Test(description = "get Genre of special Book")
@@ -66,16 +122,12 @@ public class GenreTests {
         Book newBook = bookService.getTestingBook();
         response = bookService.createBook(newBook, newAuthor.getAuthorId(), newGenre.getGenreId()); //prepeare test Book
         testGenreVerify.verifyStatusKodResponse(201, response); // prepare tetsting data
+        genreList.add(newGenre);
+        authorList.add(newAuthor);
+        bookList.add(newBook);
         /*start check*/
         response = genreService.getGenreForBookId(newBook.getBookId());
         testGenreVerify.verifyGenreByFind(newGenre, response);
-        /*end check*/
-        response = bookService.deleteBook(newBook); // clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = genreService.deleteGenre(newGenre); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = authorService.deleteAuthor(newAuthor); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
     }
 
 
@@ -91,97 +143,118 @@ public class GenreTests {
         Book newBook = bookService.getTestingBook();
         response = bookService.createBook(newBook, newAuthor.getAuthorId(), newGenre.getGenreId()); //prepeare test Book
         testGenreVerify.verifyStatusKodResponse(201, response); // prepare tetsting data
+        genreList.add(newGenre);
+        authorList.add(newAuthor);
+        bookList.add(newBook);
         /*Second genre + Second book for this Author*/
         //  newId = newId + 1;
         Genre newGenre2 = genreService.createObjGenreId(newId + 1);
         response = genreService.createGenre(newGenre2); //prepeare test Genre
         testGenreVerify.verifyStatusKodResponse(201, response); // prepare tetsting data
         Book newBook2 = bookService.getTestingBook();
-        response = bookService.createBook(newBook2, newAuthor.getAuthorId(), newGenre2.getGenreId()); //prepeare test Book
+        response = bookService.createBook(newBook2, newAuthor.getAuthorId(), newGenre2.getGenreId()); //prepare test Book
         testGenreVerify.verifyStatusKodResponse(201, response); // prepare tetsting data
+        genreList.add(newGenre2);
+        bookList.add(newBook2);
         /*start check*/
         response = genreService.getGenresForAuthorId(newAuthor);
         testGenreVerify.verifyStatusKodResponse(200, response);
         testGenreVerify.verifyGenresForAuthor(newGenre, newGenre2, response);
-        /*end check*/
-        response = bookService.deleteBook(newBook); // clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = genreService.deleteGenre(newGenre); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = bookService.deleteBook(newBook2); // clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = genreService.deleteGenre(newGenre2); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
-        response = authorService.deleteAuthor(newAuthor); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // prepare tetsting data
     }
 
 
-    @Test(description = "verify add new genre without necessary parameters , Negative test")
-    public void testAddBadGenre() {
+    @Test(description = "verify add new genre with Invalid Description , Negative test")
+    public void testAddBadDescriptionGenre() {
         /*start check*/
-        int newId = genreService.getGenresMyId();
-        Genre newGenre = genreService.createObjGenreId(-1);
-        Response response = genreService.createGenre(newGenre);
-        testGenreVerify.verifyStatusKodResponse(400, response); // not create
-        testGenreVerify.verifyAddBadNewGenreNotIdInBD(newGenre);//not in BD
-        newGenre.setGenreId(newId); //return normalId
+        Genre newGenre = genreService.createObjGenre();
         newGenre.setGenreName("");//set bad Name
         Allure.addAttachment("My objNewGenre", newGenre.toString());
-        response = genreService.createGenre(newGenre);
+        genreList.add(newGenre);
+        Response response = genreService.createGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(400, response); // not create
-        testGenreVerify.verifyAddBadNewGenreNotIdInBD(newGenre);// not in BD
+        testGenreVerify.verifyAddBadNewGenre(newGenre);// not in BD
+    }
+
+
+    @Test(description = "verify add new genre without Invalid Id , Negative test")
+    public void testAddBadGenre() {
+        /*start check*/
+        Genre newGenre = genreService.createObjGenreId(invalidId);
+        Response response = genreService.createGenre(newGenre);
+        genreList.add(newGenre);
+        testGenreVerify.verifyStatusKodResponse(400, response); // not create
+        testGenreVerify.verifyAddBadNewGenre(newGenre);//not in BD
     }
 
 
     @Test(description = "verify add new genre")
-    public void testAddGenre() throws CloneNotSupportedException {
+    public void testAddGenre() {
         Genre newGenre = genreService.createObjGenre();
-        Genre newGenreForDeleteAfterTest = (Genre) newGenre.clone();
+        genreList.add(newGenre);
+        //    Genre newGenreForDeleteAfterTest = (Genre) newGenre.clone();
         /*start check*/
         Response response = genreService.createGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(201, response);
         testGenreVerify.verifyAddNewGenre(newGenre, response);
-        Response responseTheSameGenre = genreService.createGenre(newGenre); // test add more of The same genre
-        testGenreVerify.verifyAddTheSameGenreId(responseTheSameGenre);
-        newGenre.setGenreId(genreService.getGenresMyId()); //set new Id Genre, description The Same
-        responseTheSameGenre = genreService.createGenre(newGenre);
-        testGenreVerify.verifyStatusKodResponse(409, responseTheSameGenre); // not create
-        testGenreVerify.verifyAddBadNewGenreNotIdInBD(newGenre);// not in BD
-        /*end check*/
-        response = genreService.deleteGenre(newGenreForDeleteAfterTest); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // clear tetsting data
     }
 
 
-    @Test(description = "verify update new genre")
+    @Test(description = "verify add The Same genre")
+    public void testAddTheSameGenre() {
+        Genre newGenre = genreService.createObjGenre();
+        genreList.add(newGenre);
+        Response response = genreService.createGenre(newGenre);
+        testGenreVerify.verifyStatusKodResponse(201, response);
+        /*start check*/
+        Response responseTheSameGenre = genreService.createGenre(newGenre); // test add more of The same genre
+        testGenreVerify.verifyStatusKodResponse(409, responseTheSameGenre); // not create
+        newGenre.setGenreId(genreService.getGenresMyId()); //set new Id Genre, description The Same
+        genreList.add(newGenre);// for clear after test
+        responseTheSameGenre = genreService.createGenre(newGenre);
+        testGenreVerify.verifyStatusKodResponse(409, responseTheSameGenre); // not create
+        testGenreVerify.verifyAddBadNewGenre(newGenre);// not in BD
+    }
+
+
+    @Test(description = "verify update genre")
     public void testUpdateGenre() {
         int newId = genreService.getGenresMyId();
         Genre newGenre = genreService.createObjGenreId(newId);
+        genreList.add(newGenre);
         Response response = genreService.createGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(201, response); //prepare
         /*start check*/
         int newAdd = newId + 5;
         newGenre.setGenreName("Test Name for testing" + String.valueOf(newAdd));
         newGenre.setGenreDescription("Test Test");
+        genreList.add(newGenre);
         response = genreService.updateGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(200, response); // clear tetsting data
         testGenreVerify.verifyUpdateGenre(newGenre, response);
-        newGenre.setGenreId(-1);
+    }
+
+
+    @Test(description = "verify update genre invalid Id")
+    public void testUpdateGenreInvalidId() {
+        int newId = genreService.getGenresMyId();
+        Genre newGenre = genreService.createObjGenreId(newId);
+        genreList.add(newGenre);
+        Response response = genreService.createGenre(newGenre);
+        testGenreVerify.verifyStatusKodResponse(201, response); //prepare
+        /*start check*/
+        newGenre.setGenreId(invalidId);
+        genreList.add(newGenre);
         response = genreService.updateGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(400, response);
         newGenre.setGenreId(newId); //return Normal Id Genre
         testGenreVerify.verifyBadUpdateGenre(newGenre);//check  for normal ID
-        /*end check*/
-        response = genreService.deleteGenre(newGenre); //clear test data
-        testGenreVerify.verifyStatusKodResponse(204, response); // clear tetsting data
-
     }
 
 
     @Test(description = "verify delete genre")
     public void deleteGenre() {
         Genre newGenre = genreService.createObjGenre();
+        genreList.add(newGenre);
         Response response = genreService.createGenre(newGenre);
         testGenreVerify.verifyStatusKodResponse(201, response);  //prepeare test genre
         response = genreService.deleteGenre(newGenre);
@@ -190,8 +263,9 @@ public class GenreTests {
     }
 
     @Test(description = "create genre from Yurii")
-    public void testGetGenreByIdFromYurii() {
+    public void testGetGenreByHTTPClient() {
         Genre newGenre = genreService.createObjGenre();
+        genreList.add(newGenre);
         BaseResponse<Genre> response = genreService.createGenreFromYurii(newGenre);
         testGenreVerify.verifyStatusKodResponseFromYurii(201, response);  // prepare testing data
     }

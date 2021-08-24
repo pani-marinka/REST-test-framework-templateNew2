@@ -49,8 +49,14 @@ public class BookVerifyTests {
 
     @Step
     public void verifyBadUpdateBook(Book book) {
-        LOG.info(String.format("Expected equal bookId"));
+        LOG.info(String.format("Expected bookId in BD"));
         Assert.assertTrue(bookService.checkBookIdBD(book.getBookId()));  //check  our normalId
+    }
+
+    @Step
+    public void verifyIdBook(Book book) {
+        LOG.info(String.format("Expected false bookId in BD"));
+        Assert.assertFalse(bookService.checkBookIdBD(book.getBookId()));  //check  our normalId
     }
 
     @Step

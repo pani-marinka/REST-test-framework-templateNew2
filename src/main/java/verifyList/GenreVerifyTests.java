@@ -61,7 +61,7 @@ public class GenreVerifyTests {
     }
 
     @Step
-    public void verifyAddBadNewGenreNotIdInBD(Genre genre) {
+    public void verifyAddBadNewGenre(Genre genre) {
         LOG.info("False check ourId in BD");
         Assert.assertFalse(genreService.checkGenreIdBD(genre.getGenreId()));
     }
@@ -82,9 +82,9 @@ public class GenreVerifyTests {
     }
 
     @Step
-    public void verifyAddTheSameGenreId(Response response) {
-        LOG.info(String.format("Expected 409, our Status code %s ", response.getStatusCode()));
-        Assert.assertEquals(409, response.getStatusCode()); // 409 - already exists (Conflict: Genre with such 'genreId' already exists!")
+    public void verifyAddTheSameGenreId(int code, Response response) {
+        LOG.info(String.format("Expected %s, our Status code %s ", code, response.getStatusCode()));
+        Assert.assertEquals(code, response.getStatusCode()); // 409 - already exists (Conflict: Genre with such 'genreId' already exists!")
     }
 
 

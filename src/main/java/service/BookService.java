@@ -43,37 +43,6 @@ public class BookService {
         return maxId++;
     }
 
-//    public int getBookMyId() {  // generation new IdBook for add
-//        String postEndPoint = EndPoints.END_POINTS.getValue() + new EndpointBuilder().pathParameter("books").get() + "?page=";
-//        List<Integer> bookIdList = new ArrayList<>();
-//        List<Integer> bookIdListTmp = new ArrayList<>();
-//        int maxId = 0;
-//        int x = 1;
-//        do {
-//            Response response =
-//                    given()
-//                            .header("Content-type", "application/json")
-//                            .when()
-//                            .request("GET", postEndPoint + x)
-//                            .then()
-//                            .log()
-//                            .all()
-//                            .extract()
-//                            .response();
-//            bookIdListTmp = response.jsonPath().get("bookId");
-//
-//            if (bookIdListTmp.size() > 0) {
-//                bookIdList.size();
-//                bookIdList.addAll(bookIdListTmp);
-//                x++;
-//            }
-//            if (bookIdListTmp.size() == 0) x = 0;
-//        } while (x > 0);
-//
-//        Integer d = Collections.max(bookIdList);
-//        maxId = d + 1;
-//        return maxId++;
-//    }
 
 
     private List<Integer> getListBookId() {

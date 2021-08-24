@@ -141,3 +141,84 @@ https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.14.0/
         allure.results.directory=target/allure-results
         allure.link.issue.pattern=https://example.org/issue/{}
         allure.link.tms.pattern=https://example.org/tms/{}
+
+
+        ********************************
+
+        @Test(description = "verify add new genre")
+            public void testAddGenre() throws CloneNotSupportedException {
+                Genre newGenre = genreService.createObjGenre();
+                genreList.add(newGenre);
+                Genre newGenreForDeleteAfterTest = (Genre) newGenre.clone();
+                /*start check*/
+                Response response = genreService.createGenre(newGenre);
+                testGenreVerify.verifyStatusKodResponse(201, response);
+                testGenreVerify.verifyAddNewGenre(newGenre, response);
+
+
+                Response responseTheSameGenre = genreService.createGenre(newGenre); // test add more of The same genre
+                testGenreVerify.verifyAddTheSameGenreId(responseTheSameGenre);
+                newGenre.setGenreId(genreService.getGenresMyId()); //set new Id Genre, description The Same
+                responseTheSameGenre = genreService.createGenre(newGenre);
+                testGenreVerify.verifyStatusKodResponse(409, responseTheSameGenre); // not create
+                testGenreVerify.verifyAddBadNewGenre(newGenre);// not in BD
+                /*end check*/
+                response = genreService.deleteGenre(newGenreForDeleteAfterTest); //clear test data
+                testGenreVerify.verifyStatusKodResponse(204, response); // clear tetsting data
+            }
+            *********************************************
+
+    @AfterClass(description = "clear test data")
+    public void finishTest() {
+ Map<String, Object> testObjects = new HashMap<>();
+//   testObjects.entrySet().removeIf(entry -> entry.getKey().equals("Book"));
+
+        Iterator<Map.Entry<String, Object>> iter = testObjects.entrySet().iterator();
+        Book book2;
+        int cycleI = 0;
+        while (iter.hasNext()) {
+            Map.Entry<String, Object> entry = iter.next();
+            if ("Book".equals(entry.getKey())) {
+                book2 = (Book) entry.getValue();
+                Response response = bookService.getBookId(book2); //check exist data in BD
+                if (response.getStatusCode() == 200) {
+                    response = bookService.deleteBook(book2); // clear test data
+                    testGenreVerify.verifyStatusKodResponse(204, response); //  check deleting
+                    iter.remove();
+                    cycleI += 1;
+                    System.out.println("cycleI: = " + cycleI);
+                }
+            }
+        }
+
+        Iterator<Map.Entry<String, Object>> iter2 = testObjects.entrySet().iterator();
+        while (iter2.hasNext()) {
+            Map.Entry<String, Object> entry = iter2.next();
+            System.out.println("entry.getKey() = " + entry.getKey());
+            if ("Genre".equals(entry.getKey())) {
+                Genre genre = (Genre) entry.getValue();
+                Response response = genreService.getGenreId(genre);
+                System.out.println(response.getStatusCode() + " Status");
+                if (response.getStatusCode() == 200) {
+                    response = genreService.deleteGenre(genre); //clear test data
+                    testGenreVerify.verifyStatusKodResponse(204, response); // check deleting
+                    iter2.remove();
+                    cycleI += 1;
+                    System.out.println("cycleI: = " + cycleI);
+                }
+            }
+            if ("Author".equals(entry.getKey())) {
+                Author author = (Author) entry.getValue();
+                Response response = authorService.getAuthorId(author);
+                if (response.getStatusCode() == 200) {
+                    response = authorService.deleteAuthor(author); //clear test data
+                    testGenreVerify.verifyStatusKodResponse(204, response); // check deleting
+                    iter2.remove();
+                    cycleI += 1;
+                    System.out.println("cycleI: = " + cycleI);
+                }
+            }
+        }
+
+    }
+    ********************************
